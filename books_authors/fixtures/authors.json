@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "first_name": "Gabriel",
+    "last_name": "García Márquez",
+    "birth_date": "1927-03-06",
+    "bio": "Escritor colombiano, premio Nobel de Literatura."
+  },
+  {
+    "id": 2,
+    "first_name": "Isabel",
+    "last_name": "Allende",
+    "birth_date": "1942-08-02",
+    "bio": "Novelista chilena, autora de 'La casa de los espíritus'."
+  },
+  {
+    "id": 3,
+    "first_name": "Jorge Luis",
+    "last_name": "Borges",
+    "birth_date": "1899-08-24",
+    "bio": "Escritor argentino, maestro del cuento corto."
+  },
+  {
+    "id": 4,
+    "first_name": "Mario",
+    "last_name": "Vargas Llosa",
+    "birth_date": "1936-03-28",
+    "bio": "Escritor peruano, premio Nobel de Literatura."
+  }
+]

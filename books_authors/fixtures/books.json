@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Cien años de soledad",
+    "isbn": "9780307474728",
+    "published_date": "1967-05-30",
+    "pages": 417,
+    "price": "25.50",
+    "language": "Español",
+    "literary_genre": "Realismo mágico",
+    "summary": "Novela icónica de la literatura latinoamericana.",
+    "authors": [1]
+  },
+  {
+    "id": 2,
+    "title": "La casa de los espíritus",
+    "isbn": "9780553383805",
+    "published_date": "1982-01-01",
+    "pages": 481,
+    "price": "20.00",
+    "language": "Español",
+    "literary_genre": "Realismo mágico",
+    "summary": "Saga familiar que mezcla realismo mágico e historia de Chile.",
+    "authors": [2]
+  },
+  {
+    "id": 3,
+    "title": "Ficciones",
+    "isbn": "9788420633127",
+    "published_date": "1944-01-01",
+    "pages": 224,
+    "price": "15.75",
+    "language": "Español",
+    "literary_genre": "Cuento filosófico",
+    "summary": "Colección de cuentos de Jorge Luis Borges.",
+    "authors": [3]
+  },
+  {
+    "id": 4,
+    "title": "La ciudad y los perros",
+    "isbn": "9788497592208",
+    "published_date": "1963-01-01",
+    "pages": 376,
+    "price": "18.90",
+    "language": "Español",
+    "literary_genre": "Novela social",
+    "summary": "Novela sobre la vida militar y la violencia en un colegio de Lima.",
+    "authors": [4]
+  }
+]

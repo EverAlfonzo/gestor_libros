@@ -1,0 +1,55 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Database files
+*.sqlite3
+db.sqlite3
+
+# Media and static files (if served locally)
+media/
+static_collected/  # If you use collectstatic
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.bak
+*~
+.DS_Store
+
+# Environment variables
+.env
+
+# Django specific
+manage.pyc
+celerybeat.pid
+
+# Logging
+*.log
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Node.js (if using a frontend framework alongside Django)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Other common files
+.DS_Store
+Thumbs.db
