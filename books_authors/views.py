@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
+from rest_framework.permissions import IsAuthenticated
 
 from django.db.models import Count
 from rest_framework.decorators import action
@@ -32,6 +33,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def more_books_order(self, request):
@@ -76,6 +78,7 @@ class BookViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ["published_date","isbn"]
     search_fields = ['title', 'isbn', 'literary_genre']
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Book.objects.all().prefetch_related('authors')

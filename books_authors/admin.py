@@ -19,4 +19,4 @@ class BookAdmin(admin.ModelAdmin):
     list_display = ("title", "isbn", "published_date", "pages", "price")
     list_filter = ("language",)
     search_fields = ("title", "isbn", "authors__last_name", "authors__first_name")
-    filter_horizontal = ("authors",)
+    autocomplete_fields = ["authors"]

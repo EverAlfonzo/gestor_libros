@@ -38,11 +38,15 @@ WORKDIR /app
 
 # Copiar el código de la aplicación
 COPY --chown=appuser:appuser . .
+RUN mkdir -p /app/staticfiles
+RUN chown -R appuser:appuser /app/staticfiles
 RUN chmod +x /app/entrypoint.sh
 # Establecer variables de entorno para optimizar Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Ensure access.log exists and is writable by appuser
+RUN touch /app/access.log && chown appuser:appuser /app/access.log
 
 # Cambiar a usuario no root
 USER appuser

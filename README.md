@@ -1,14 +1,20 @@
 # Book & Author Manager
 
-A Django REST API for managing books and authors.
+A Django REST API for managing books and authors. This application provides a robust backend for managing a library
+catalog with detailed information about books and their authors.
 
 ## Features
 
-- CRUD operations for books and authors
-- Many-to-many relationship between books and authors
-- API endpoints with Django REST Framework
-- PostgreSQL database support
-- Dockerized for easy deployment
+- CRUD operations for books and authors with comprehensive data models
+- Many-to-many relationship between books and authors enabling flexible associations
+- RESTful API endpoints built with Django REST Framework
+- PostgreSQL database for reliable data storage
+- Production-ready Docker configuration
+- API documentation with Swagger UI
+- Automated testing setup with pytest
+- Static file handling with whitenoise
+- Production deployment with gunicorn
+- Sample data fixtures included
 
 ## Project Structure
 ```
@@ -39,11 +45,16 @@ cd gestor_libros
 ``` 
 2. Configure environment variables:
    - Create a `.env` file in the root directory with the  content as in env.example
-3. Set up for docker on development:
+3. Set up for docker fro development:
    - Modify the `docker-compose.yml` web service to use command for entrypoint
    - Modify `.env` file to set `DEBUG=True` for development mode
 4. Build and start the containers:
 ```./deploy.sh```
+5. If you are deploying to production, ensure you have set `DEBUG=False` in the `.env` file and run the folling:
+```bash
+docker compose exec web python manage.py collectstatic --noinput
+```
+
 5. Access the API at `http://localhost:8000/api/`
 6. Access the admin interface at `http://localhost:8000/admin/` with the superuser credentials created during setup.
 7. Access the Swagger documentation at `http://localhost:8000/swagger/` to explore the API endpoints.
@@ -51,6 +62,42 @@ cd gestor_libros
 ```bash
 docker compose exec web pytest -q
 ```
+
+## Authentication & Security
+
+All API endpoints require JWT authentication.
+
+- Obtain a token by POSTing to `/api/token/` with username and password:
+  ```bash
+  curl -X POST http://localhost:8000/api/token/ -d '{"username": "youruser", "password": "yourpass"}' -H "Content-Type: application/json"
+  ```
+- Use the token in the `Authorization: Bearer <token>` header for all requests:
+  ```bash
+  curl -H "Authorization: Bearer <your_token>" http://localhost:8000/api/authors/
+  ```
+
+### Fail2ban Integration
+
+- All failed login attempts to `/api/token/` are logged in `/app/access.log`.
+- You can configure fail2ban to monitor this log and block brute-force attempts.
+- Example fail2ban filter:
+  ```
+  [Definition]
+  failregex = ^.*POST /api/token/.* 401 .*
+  ignoreregex =
+  ```
+- Example jail config:
+  ```
+  [django-jwt]
+  enabled  = true
+  port     = http,https
+  filter   = django-jwt
+  logpath  = /app/access.log
+  maxretry = 5
+  findtime = 600
+  bantime  = 3600
+  ```
+
 
 ### Endpoints
 
@@ -66,6 +113,3 @@ docker compose exec web pytest -q
   - `GET /api/authors/{id}/` - Retrieve an author by ID
   - `PUT /api/authors/{id}/` - Update an author by ID
   - `DELETE /api/authors/{id}/` - Delete an author by ID
-
-
-

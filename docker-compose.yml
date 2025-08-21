@@ -24,7 +24,15 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - static_data:/app/staticfiles
+      - logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:
+  static_data:
+  logs:

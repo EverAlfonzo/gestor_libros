@@ -2,6 +2,7 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from books_authors.models import Author, Book
 from books_authors.serializers import AuthorSerializer
 
@@ -48,17 +49,34 @@ def create_authors_and_books(db):
     }
 
 
+@pytest.fixture
+def test_user(db):
+    User = get_user_model()
+    user = User.objects.create_user(username='testuser', password='testpass123')
+    return user
+
+
+@pytest.fixture
+def auth_client(test_user):
+    client = APIClient()
+    url = reverse('token_obtain_pair')
+    response = client.post(url, {'username': 'testuser', 'password': 'testpass123'}, format='json')
+    token = response.data['access']
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
+    return client
+
+
 # --- Tests para AuthorViewSet ---
 
 class TestAuthorViewSet:
 
-    def test_list_authors(self, api_client, create_authors_and_books):
+    def test_list_authors(self, auth_client, create_authors_and_books):
         url = reverse('author-list')
-        response = api_client.get(url)
+        response = auth_client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data.get('results')) == Author.objects.count()
 
-    def test_create_author(self, api_client, create_authors_and_books):
+    def test_create_author(self, auth_client, create_authors_and_books):
         url = reverse('author-list')
         data = {
             'first_name': 'Jorge Luis',
@@ -66,37 +84,37 @@ class TestAuthorViewSet:
             'birth_date': '1899-08-24',
             'bio': 'Escritor argentino.'
         }
-        response = api_client.post(url, data, format='json')
+        response = auth_client.post(url, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         assert Author.objects.filter(first_name='Jorge Luis').exists()
 
-    def test_retrieve_author(self, api_client, create_authors_and_books):
+    def test_retrieve_author(self, auth_client, create_authors_and_books):
         author = create_authors_and_books['author1']
         url = reverse('author-detail', kwargs={'pk': author.pk})
-        response = api_client.get(url)
+        response = auth_client.get(url)
         assert response.status_code == status.HTTP_200_OK
         expected_data = AuthorSerializer(author).data
         assert response.data['first_name'] == expected_data['first_name']
 
-    def test_partial_update_author(self, api_client, create_authors_and_books):
+    def test_partial_update_author(self, auth_client, create_authors_and_books):
         author = create_authors_and_books['author1']
         url = reverse('author-detail', kwargs={'pk': author.pk})
         data = {'last_name': 'Márquez'}
-        response = api_client.patch(url, data, format='json')
+        response = auth_client.patch(url, data, format='json')
         author.refresh_from_db()
         assert response.status_code == status.HTTP_200_OK
         assert author.last_name == 'Márquez'
 
-    def test_delete_author(self, api_client, create_authors_and_books):
+    def test_delete_author(self, auth_client, create_authors_and_books):
         author = create_authors_and_books['author3']
         url = reverse('author-detail', kwargs={'pk': author.pk})
-        response = api_client.delete(url)
+        response = auth_client.delete(url)
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not Author.objects.filter(pk=author.pk).exists()
 
-    def test_more_books_order(self, api_client, create_authors_and_books):
+    def test_more_books_order(self, auth_client, create_authors_and_books):
         url = reverse('author-more-books-order')
-        response = api_client.get(url)
+        response = auth_client.get(url)
         assert response.status_code == status.HTTP_200_OK
 
         # El autor 'Gabriel García Márquez' tiene 3 libros, 'Isabel Allende' tiene 2.
@@ -111,13 +129,13 @@ class TestAuthorViewSet:
 
 class TestBookViewSet:
 
-    def test_list_books(self, api_client, create_authors_and_books):
+    def test_list_books(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
-        response = api_client.get(url)
+        response = auth_client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == Book.objects.count()
 
-    def test_create_book(self, api_client, create_authors_and_books):
+    def test_create_book(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
         author =Author.objects.filter(first_name='Gabriel', last_name='García Márquez').get()
         data = {
@@ -127,40 +145,40 @@ class TestBookViewSet:
             'literary_genre': 'Cuento',
             'authors_ids': [author.id]  # Usamos el ID del autor obtenido
         }
-        response = api_client.post(url, data, format='json')
+        response = auth_client.post(url, data, format='json')
         assert response.status_code == status.HTTP_201_CREATED
         assert Book.objects.filter(title='Ficciones').exists()
 
-    def test_more_than_one_author(self, api_client, create_authors_and_books):
+    def test_more_than_one_author(self, auth_client, create_authors_and_books):
         url = reverse('book-more-than-one-author')
-        response = api_client.get(url)
+        response = auth_client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data) == 1
         assert response.data[0]['title'] == 'Crónica de una muerte anunciada'
 
-    def test_filter_by_published_date(self, api_client, create_authors_and_books):
+    def test_filter_by_published_date(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
-        response = api_client.get(f'{url}?published_date=1982-01-01')
+        response = auth_client.get(f'{url}?published_date=1982-01-01')
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data['results']) == 1
         assert response.data['results'][0]['title'] == 'La casa de los espíritus'
 
-    def test_search_by_title(self, api_client, create_authors_and_books):
+    def test_search_by_title(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
-        response = api_client.get(f'{url}?search=años')
+        response = auth_client.get(f'{url}?search=años')
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data.get('results')) == 1
         assert response.data.get('results')[0]['title'] == 'Cien años de soledad'
 
-    def test_search_by_literary_genre(self, api_client, create_authors_and_books):
+    def test_search_by_literary_genre(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
-        response = api_client.get(f'{url}?literary_genre=realismo')
+        response = auth_client.get(f'{url}?literary_genre=realismo')
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data.get('results')) == 2
 
-    def test_filter_and_search_combined(self, api_client, create_authors_and_books):
+    def test_filter_and_search_combined(self, auth_client, create_authors_and_books):
         url = reverse('book-list')
-        response = api_client.get(f'{url}?published_date=1985-05-01&search=el amor')
+        response = auth_client.get(f'{url}?published_date=1985-05-01&search=el amor')
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data.get('results')) == 1
         assert response.data.get('results')[0]['title'] == 'El amor en los tiempos del cólera'

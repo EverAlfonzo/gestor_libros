@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',  # Modern Django admin theme with autocomplete support
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,12 +41,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',  # For filtering in DRF
     'books_authors',  # Your app for managing books and authors
-
-    # 'corsheaders',  # For handling CORS
+    'rest_framework_simplejwt',  # JWT authentication
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'core.jwt_logging_middleware.JWTAuthLoggingMiddleware',  # Log JWT login attempts
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,9 +131,120 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SWAGGER_USE_COMPAT_RENDERERS = False
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',  # Enable DRF login form
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 5,
 }
 
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+MIDDLEWARE.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'access.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Gestor de Libros Admin",
+    "site_header": "Gestor de Libros",
+    "site_brand": "Gestor de Libros",
+    "welcome_sign": "Bienvenido al Gestor de Libros!",
+    "copyright": "© 2025 Ever Alfonzo",
+    "search_model": ["books_authors.Book", "books_authors.Author"],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["books_authors", "auth", "admin"],
+    "custom_links": {
+        "books_authors.Book": [{
+            "name": "Ver en Google Books",
+            "url": "https://books.google.com/",
+            "icon": "fas fa-book-open",
+            "target": "_blank"
+        }],
+    },
+    "icons": {
+        "books_authors.Book": "fas fa-book",
+        "books_authors.Author": "fas fa-user-edit",
+        "auth.User": "fas fa-users",
+        "auth.Group": "fas fa-users-cog",
+    },
+    "default_icon_parents": "fas fa-folder-open",
+    "default_icon_children": "fas fa-file-alt",
+    "related_modal_active": True,
+    "custom_css": None,
+    "custom_js": None,
+    "show_ui_builder": True,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "books_authors.Book": "collapsible",
+        "books_authors.Author": "vertical_tabs",
+    },
+    "theme": "cosmo",  # Fun, vibrant Bootswatch theme
+    "login_logo": None,
+    "site_logo": None,
+    "site_icon": None,
+    "use_google_fonts_cdn": True,
+    "show_settings": True,
+    "show_home": True,
+    "show_model_icons": True,
+}
