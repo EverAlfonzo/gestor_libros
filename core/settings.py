@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+9)rsjc*82u!+g=1bp2tjw_k0h#qjp*4%km#@$#i-#c-q!)w%h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
@@ -248,3 +248,5 @@ JAZZMIN_SETTINGS = {
     "show_home": True,
     "show_model_icons": True,
 }
+
+X_FRAME_OPTIONS = 'ALLOWALL'

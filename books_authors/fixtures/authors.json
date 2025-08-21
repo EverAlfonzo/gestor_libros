@@ -1,27 +1,27 @@
 [
   {
-    "id": 1,
+    "id": "b7e6a2e2-8c3a-4e2a-9b1a-1e2f3a4b5c6d",
     "first_name": "Gabriel",
     "last_name": "García Márquez",
     "birth_date": "1927-03-06",
     "bio": "Escritor colombiano, premio Nobel de Literatura."
   },
   {
-    "id": 2,
+    "id": "c8f7b3f3-9d4b-4e2a-9b1a-2f3e4b5c6d7e",
     "first_name": "Isabel",
     "last_name": "Allende",
     "birth_date": "1942-08-02",
     "bio": "Novelista chilena, autora de 'La casa de los espíritus'."
   },
   {
-    "id": 3,
+    "id": "d9a8c4c4-0e5c-4e2a-9b1a-3e4f5c6d7e8f",
     "first_name": "Jorge Luis",
     "last_name": "Borges",
     "birth_date": "1899-08-24",
     "bio": "Escritor argentino, maestro del cuento corto."
   },
   {
-    "id": 4,
+    "id": "e0b9d5d5-1f6d-4e2a-9b1a-4f5e6d7e8f9a",
     "first_name": "Mario",
     "last_name": "Vargas Llosa",
     "birth_date": "1936-03-28",

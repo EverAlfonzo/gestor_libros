@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -12,6 +13,7 @@ class TimeStampedModel(models.Model):
 
 
 class Author(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name="ID único")
     first_name = models.CharField(max_length=100, verbose_name="Nombre")
     last_name = models.CharField(max_length=100, verbose_name="Apellido")
     birth_date = models.DateField(null=True, blank=True, verbose_name="Fecha de nacimiento")
@@ -28,6 +30,7 @@ class Author(TimeStampedModel):
 
 
 class Book(TimeStampedModel):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name="ID único")
     title = models.CharField(max_length=200, verbose_name="Título")
     isbn = models.CharField(max_length=13, unique=True, verbose_name="ISBN")
     published_date = models.DateField(null=True, blank=True, verbose_name="Fecha de publicación")

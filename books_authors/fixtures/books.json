@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": "f1e2d3c4-5b6a-4e2a-9b1a-1e2f3a4b5c6d",
     "title": "Cien años de soledad",
     "isbn": "9780307474728",
     "published_date": "1967-05-30",
@@ -9,10 +9,10 @@
     "language": "Español",
     "literary_genre": "Realismo mágico",
     "summary": "Novela icónica de la literatura latinoamericana.",
-    "authors": [1]
+    "authors": ["b7e6a2e2-8c3a-4e2a-9b1a-1e2f3a4b5c6d"]
   },
   {
-    "id": 2,
+    "id": "f2e3d4c5-6b7a-4e2a-9b1a-2f3e4b5c6d7e",
     "title": "La casa de los espíritus",
     "isbn": "9780553383805",
     "published_date": "1982-01-01",
@@ -21,10 +21,10 @@
     "language": "Español",
     "literary_genre": "Realismo mágico",
     "summary": "Saga familiar que mezcla realismo mágico e historia de Chile.",
-    "authors": [2]
+    "authors": ["c8f7b3f3-9d4b-4e2a-9b1a-2f3e4b5c6d7e"]
   },
   {
-    "id": 3,
+    "id": "f3e4d5c6-7b8a-4e2a-9b1a-3e4f5c6d7e8f",
     "title": "Ficciones",
     "isbn": "9788420633127",
     "published_date": "1944-01-01",
@@ -33,10 +33,10 @@
     "language": "Español",
     "literary_genre": "Cuento filosófico",
     "summary": "Colección de cuentos de Jorge Luis Borges.",
-    "authors": [3]
+    "authors": ["d9a8c4c4-0e5c-4e2a-9b1a-3e4f5c6d7e8f"]
   },
   {
-    "id": 4,
+    "id": "f4e5d6c7-8b9a-4e2a-9b1a-4f5e6d7e8f9a",
     "title": "La ciudad y los perros",
     "isbn": "9788497592208",
     "published_date": "1963-01-01",
@@ -45,6 +45,6 @@
     "language": "Español",
     "literary_genre": "Novela social",
     "summary": "Novela sobre la vida militar y la violencia en un colegio de Lima.",
-    "authors": [4]
+    "authors": ["e0b9d5d5-1f6d-4e2a-9b1a-4f5e6d7e8f9a"]
   }
 ]
