@@ -230,15 +230,10 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-folder-open",
     "default_icon_children": "fas fa-file-alt",
-    "related_modal_active": True,
     "custom_css": None,
     "custom_js": None,
     "show_ui_builder": True,
     "changeform_format": "horizontal_tabs",
-    "changeform_format_overrides": {
-        "books_authors.Book": "collapsible",
-        "books_authors.Author": "vertical_tabs",
-    },
     "theme": "cosmo",  # Fun, vibrant Bootswatch theme
     "login_logo": None,
     "site_logo": None,

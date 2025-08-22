@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
 
-from django.db.models import Count
+from django.db.models import Count, Avg, Max, Min, Sum, Q
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -53,6 +53,46 @@ class AuthorViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(authors, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'])
+    def books_statistics(self, request):
+        """
+        Devuelve estadísticas de los libros por autor.
+
+        Calcula:
+        - Número total de libros
+        - Precio promedio de los libros
+        - Libro más caro
+        - Libro más barato 
+        - Total de páginas escritas
+
+        Returns:
+            Response: Diccionario con las estadísticas calculadas
+        """
+        authors = Author.objects.annotate(
+            total_books=Count('books'),
+            avg_price=Avg('books__price'),
+            max_price=Max('books__price'),
+            min_price=Min('books__price'),
+            total_pages=Sum('books__pages')
+        ).values('id', 'first_name', 'last_name', 'total_books', 'avg_price', 'max_price', 'min_price', 'total_pages').order_by('last_name', 'first_name')
+
+        result = []
+        for author in authors:
+            author_dict = {
+                'id': author['id'],
+                'first_name': author['first_name'],
+                'last_name': author['last_name'],
+                'total_books': author['total_books'],
+                'avg_price': round(float(author['avg_price'] or 0), 2),
+                'max_price': float(author['max_price'] or 0),
+                'min_price': float(author['min_price'] or 0),
+                'total_pages': author['total_pages'] or 0
+            }
+            result.append(author_dict)
+
+        return Response(result)
+
+
 class BookViewSet(viewsets.ModelViewSet):
     """
     ViewSet para administrar operaciones del modelo Book a través de la API REST.
@@ -76,13 +116,13 @@ class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ["published_date","isbn"]
+    filterset_fields = ["published_date", "isbn"]
     search_fields = ['title', 'isbn', 'literary_genre']
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Book.objects.all().prefetch_related('authors')
-        literary_genre = self.request.query_params.get('literary_genre')
+        literary_genre = self.request.GET.get('literary_genre')
         if literary_genre:
             queryset = queryset.filter(literary_genre__icontains=literary_genre)
         return queryset
@@ -105,4 +145,57 @@ class BookViewSet(viewsets.ModelViewSet):
         qs = Book.objects.all()
         qs = qs.annotate(num_authors=Count("authors")).filter(num_authors__gt=1)
         serializer = self.get_serializer(qs,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def price_range(self, request):
+        """
+        Filtra libros por rango de precios.
+
+        Query params:
+        - min_price: precio mínimo
+        - max_price: precio máximo
+
+        Returns:
+            Response: Lista de libros dentro del rango de precios especificado
+        """
+        min_price = request.query_params.get('min_price')
+        max_price = request.query_params.get('max_price')
+
+        queryset = Book.objects.all()
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def advance_search(self, request):
+        """
+        Realiza una búsqueda compleja combinando múltiples criterios.
+
+        Query params:
+        - genre: género literario
+        - min_pages: número mínimo de páginas
+        - language: idioma del libro
+
+        Returns:
+            Response: Lista de libros que cumplen todos los criterios
+        """
+        genre = request.query_params.get('genre')
+        min_pages = request.query_params.get('min_pages')
+        language = request.query_params.get('language')
+
+        query = Q()
+        if genre:
+            query &= Q(literary_genre__icontains=genre)
+        if min_pages:
+            query &= Q(pages__gte=min_pages)
+        if language:
+            query &= Q(language__iexact=language)
+
+        queryset = Book.objects.filter(query)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

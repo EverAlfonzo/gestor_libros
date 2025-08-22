@@ -1,4 +1,5 @@
 import pytest
+from django.db.models import Count
 from rest_framework import status
 from rest_framework.test import APIClient
 from django.urls import reverse
@@ -124,6 +125,18 @@ class TestAuthorViewSet:
         assert response.data[1]['first_name'] == 'Isabel'
         assert response.data[1]['last_name'] == 'Allende'
 
+    def test_books_statistics(self, auth_client, create_authors_and_books):
+        url = reverse('author-books-statistics')
+        response = auth_client.get(url)
+        authors = Author.objects.annotate(total_books=Count('books')).values('total_books').order_by('last_name', 'first_name')
+        assert response.status_code == status.HTTP_200_OK
+        assert 'total_books' in response.data[0]
+        assert 'avg_price' in response.data[0]
+        assert 'max_price' in response.data[0]
+        assert 'min_price' in response.data[0]
+        assert 'total_pages' in response.data[0]
+        assert response.data[0]['total_books'] == authors[0]['total_books']
+
 
 # --- Tests para BookViewSet ---
 
@@ -182,3 +195,29 @@ class TestBookViewSet:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data.get('results')) == 1
         assert response.data.get('results')[0]['title'] == 'El amor en los tiempos del cólera'
+
+    def test_price_range(self, auth_client, create_authors_and_books):
+        url = reverse('book-price-range')
+        response = auth_client.get(f'{url}?min_price=10&max_price=50')
+        assert response.status_code == status.HTTP_200_OK
+        for book in response.data:
+            assert float(book['price']) >= 10
+            assert float(book['price']) <= 50
+
+    def test_advance_search(self, auth_client, create_authors_and_books):
+        url = reverse('book-advance-search')
+        params = {
+            'title': 'soledad',
+            'literary_genre': 'Realismo mágico',
+            'language': 'Español',
+            'min_pages': 100,
+            'max_pages': 500
+        }
+        response = auth_client.get(url, params)
+        assert response.status_code == status.HTTP_200_OK
+        for book in response.data:
+            assert 'soledad' in book['title'].lower()
+            assert book['literary_genre'] == 'Realismo mágico'
+            assert book['language'] == 'Español'
+            assert int(book['pages']) >= 100
+            assert int(book['pages']) <= 500

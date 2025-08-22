@@ -107,9 +107,15 @@ All API endpoints require JWT authentication.
   - `GET /api/books/{id}/` - Retrieve a book by ID
   - `PUT /api/books/{id}/` - Update a book by ID
   - `DELETE /api/books/{id}/` - Delete a book by ID
+  - `GET /api/books/more_than_one_author/` - List books with more than one author
+  - `GET /api/books/price_range/?min_price=&max_price=` - List books filtered by price range
+  - `GET /api/books/advance_search/?genre=&min_pages=&language=` - Advanced search for books by genre, pages, and language
+
 - **Authors**
   - `GET /api/authors/` - List all authors
   - `POST /api/authors/` - Create a new author
   - `GET /api/authors/{id}/` - Retrieve an author by ID
   - `PUT /api/authors/{id}/` - Update an author by ID
   - `DELETE /api/authors/{id}/` - Delete an author by ID
+  - `GET /api/authors/more_books_order/` - List authors ordered by number of books
+  - `GET /api/authors/books_statistics/` - Get book statistics per author
